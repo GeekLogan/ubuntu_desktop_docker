@@ -1,24 +1,29 @@
-date
-whoami
-hostname
+#!/bin/bash
+
+# This script is chainloaded in the userspace permissions by startup.sh 
+
+# Display environment variables
+echo "It's $(date)"
+echo "User:     $(whoami)"
+echo "Hostname: $(hostname)"
+echo "IP:       $(hostname -i)"
 
 VNC_IP=$(hostname -i)
+set -x
 
 #mkdir -p "$HOME/.vnc"
 #PASSWD_PATH="$HOME/.vnc/passwd"
 #echo "$VNC_PW" | vncpasswd -f >> "$PASSWD_PATH"
 #chmod 600  "$PASSWD_PATH"
 
-#vncserver "$DISPLAY" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -SecurityTypes=None &> "$START_DIR"/vnc_startup.log
+# Launch VNC server as virtual monitor
 /usr/bin/vncserver "$DISPLAY" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -SecurityTypes=None -noxstartup
 echo -e "\nConnect to $VNC_IP:$VNC_PORT"
-
-set -e
 
 # Disable screensaver and power management
 xset s noblank
 xset s 0 0
 xset s off
 
-# Launch terminal
+# Launch desktop environment
 /bin/startlxde
