@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 MAINTAINER Logan A Walker <loganaw@umich.edu>
 
 # Prevent installers from prompting
@@ -15,30 +15,28 @@ RUN apt-get install --no-install-recommends -y wget ca-certificates
 RUN apt install -y htop screenfetch nload
 
 # Install tigervnc
-RUN wget -v -O tigervnc-1.10.0.x86_64.tar.gz https://sourceforge.net/projects/tigervnc/files/stable/1.10.0/tigervnc-1.10.0.x86_64.tar.gz
-RUN tar xz -f tigervnc-1.10.0.x86_64.tar.gz --strip 1 -C /
-#RUN rm -rf tigervnc-1.10.0.x86_64.tar.gz 
+RUN apt install -y tigervnc-standalone-server
 
 # Install desktop environment
 RUN apt install -y lxde
-RUN apt install -y x11-utils
+RUN apt install -y x11-utils xauth
 RUN apt install -y build-essential
 
 # Fun apps
 RUN apt install -y libreoffice
 RUN apt install -y gimp
-#RUN apt install -y code
 
 # System utilities
 RUN apt install -y fuse snapd snap-confine squashfuse sudo init screen parallel
+#RUN snap install --classic code
+
+# Install Fiji
+RUN wget https://downloads.imagej.net/fiji/latest/fiji-nojre.zip
+RUN apt install -y openjdk-8-jre
+RUN su ubuntu -c "unzip /fiji-nojre.zip -d /home/ubuntu/"
 
 # Clear buffer
 RUN apt clean
-
-# Download for later use
-RUN wget https://repo.anaconda.com/archive/Anaconda3-2023.03-1-Linux-x86_64.sh
-RUN chmod +x Anaconda*.sh
-RUN wget https://downloads.imagej.net/fiji/latest/fiji-linux64.zip
 
 # Install Chrome (broken :( )
 #ADD google-chrome-stable_current_amd64.deb /
@@ -74,14 +72,15 @@ ENV VNC_COL_DEPTH=24
 ENV VNC_PW=password
 ENV VNC_PORT=5900
 
-EXPOSE ${VNC_PORT}
+EXPOSE 5900
+EXPOSE 22
 
 ##############################
 # Perform userspace setup
 ##############################
     
 # Create user
-RUN useradd -ms /bin/bash ubuntu -d ${HOME}
+#RUN useradd -ms /bin/bash ubuntu -d ${HOME}
 RUN echo "ubuntu:ubuntu" | chpasswd
 
 # Copy startup script
@@ -96,17 +95,14 @@ RUN usermod -aG sudo ubuntu
 WORKDIR /home/ubuntu
 
 # Install conda
-ADD install_conda.sh ${HOME}
-RUN su ubuntu -c "/bin/bash install_conda.sh"
-RUN rm ${HOME}/install_conda.sh
+###ADD install_conda.sh ${HOME}
 
-# Install Fiji
-RUN su ubuntu -c "unzip /fiji-linux64.zip -d ${HOME}/"
+#RUN su ubuntu -c "/bin/bash install_conda.sh"
+#RUN rm ${HOME}/install_conda.sh
+
 
 ##############################
 # Launch
 ##############################
 
 ENTRYPOINT ["/home/ubuntu/startup.sh"]
-
-

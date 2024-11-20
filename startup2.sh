@@ -17,8 +17,8 @@ set -x
 #chmod 600  "$PASSWD_PATH"
 
 # Launch VNC server as virtual monitor
-/usr/bin/vncserver "$DISPLAY" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -SecurityTypes=None -noxstartup
-echo -e "\nConnect to $VNC_IP:$VNC_PORT"
+vncserver "$DISPLAY" -depth "$VNC_COL_DEPTH" -geometry "$VNC_RESOLUTION" -SecurityTypes=None -noxstartup -localhost no --I-KNOW-THIS-IS-INSECURE
+echo -e "Connect to $VNC_IP:$VNC_PORT"
 
 # Disable screensaver and power management
 xset s noblank
